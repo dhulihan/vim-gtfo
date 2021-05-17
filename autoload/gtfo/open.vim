@@ -139,10 +139,10 @@ func! gtfo#open#term(dir, cmd) abort "{{{
 
   if s:istmux
     if s:tmux_1_6
-      silent call system('tmux split-window -v -p 10 \; send-keys "cd ''' . l:dir . ''' && clear" C-m')
+      silent call system('tmux split-window -v -p 20 \; send-keys "cd ''' . l:dir . ''' && clear" C-m')
     else
       " TODO: use a global var for this
-      silent call system("tmux split-window -v -p 10 -c '" . l:dir . "'")
+      silent call system("tmux split-window -v -p 20 -c '" . l:dir . "'")
     endif
   elseif s:iskitty
     let l:cwd = s:iswin ? shellescape(l:dir, 1) : "'" . l:dir .  "'"
