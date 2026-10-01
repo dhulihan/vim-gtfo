@@ -1,6 +1,7 @@
 let s:iswin = has('win32') || has('win64') || has('win32unix') || has('win64unix')
 let s:ismac = has('gui_macvim') || has('mac')
 let s:istmux = !(empty($TMUX))
+let s:isherdr = $HERDR_ENV !=? ''
 let s:iswezterm = $WEZTERM_PANE !=? ''
 let s:iskitty = $KITTY_LISTEN_ON !=? ''
 "GUI Vim
@@ -112,7 +113,7 @@ func! gtfo#open#file(path) abort "{{{
     silent exec '!start explorer '.(l:validfile ? '/select,'.shellescape(l:path, 1) : shellescape(l:dir, 1))
     call s:restore_shell()
   elseif !s:is_gui_available && !executable('xdg-open')
-    if s:istmux "fallback to 'got'
+    if s:istmux || s:isherdr "fallback to 'got'
       call gtfo#open#term(l:dir, "")
     else
       call s:beep('failed to open file manager')
@@ -137,7 +138,11 @@ func! gtfo#open#term(dir, cmd) abort "{{{
     return
   endif
 
-  if s:istmux
+  if s:isherdr
+    " split the current herdr pane downward, in the target directory.
+    let l:cwd = s:iswin ? shellescape(l:dir, 1) : "'" . l:dir . "'"
+    silent call system("herdr pane split --current --direction down --cwd " . l:cwd . " --focus")
+  elseif s:istmux
     if s:tmux_1_6
       " if this stops working, try running with `:!<cmd>` to see exit code.
       silent call system('tmux split-window -v -l 20 \; send-keys "cd ''' . l:dir . ''' && clear" C-m')
